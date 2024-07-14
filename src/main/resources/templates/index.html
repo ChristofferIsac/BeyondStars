@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Star Wars Characters</title>
+</head>
+<body>
+<h2>Star Wars Characters</h2>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Species</th>
+        <th>Affiliation</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="character : ${listCharacters}">
+        <td th:text="${character.id}"></td>
+        <td th:text="${character.name}"></td>
+        <td th:text="${character.species}"></td>
+        <td th:text="${character.affiliation}"></td>
+        <td>
+            <a th:href="@{/showFormForUpdate/{id}(id=${character.id})}">Edit</a> |
+            <a th:href="@{/deleteCharacter/{id}(id=${character.id})}">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<a href="/showNewCharacterForm">Add New Character</a>
+</body>
+</html>
