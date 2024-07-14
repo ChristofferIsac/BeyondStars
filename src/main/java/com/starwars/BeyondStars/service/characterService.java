@@ -1,7 +1,7 @@
 package com.starwars.BeyondStars.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import com.starwars.BeyondStars.model.characterModel;
+import com.starwars.BeyondStars.model.StarWarsCharacter;
 import com.starwars.BeyondStars.repository.characterRepository;
 import  org.springframework.stereotype.Service;
 

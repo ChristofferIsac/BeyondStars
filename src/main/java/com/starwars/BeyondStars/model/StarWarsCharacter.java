@@ -9,8 +9,16 @@ public class StarWarsCharacter {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
+    private String gender;
     private String species;
     private String affiliation;
+
+    public StarWarsCharacter(String name, String gender, String species, String affiliation) {
+        this.name = name;
+        this.gender = gender;
+        this.species = species;
+        this.affiliation = affiliation;
+    }
 
     public Long getId() {
         return id;
@@ -26,6 +34,10 @@ public class StarWarsCharacter {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getGender(int i) {
+        return gender;
     }
 
     public String getAffiliation() {
