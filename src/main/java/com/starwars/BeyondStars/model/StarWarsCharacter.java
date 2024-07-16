@@ -1,31 +1,20 @@
 package com.starwars.BeyondStars.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
 public class StarWarsCharacter {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+
     private String name;
     private String gender;
     private String species;
     private String affiliation;
+
+    public StarWarsCharacter() {
+    }
 
     public StarWarsCharacter(String name, String gender, String species, String affiliation) {
         this.name = name;
         this.gender = gender;
         this.species = species;
         this.affiliation = affiliation;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -36,16 +25,12 @@ public class StarWarsCharacter {
         this.name = name;
     }
 
-    public String getGender(int i) {
+    public String getGender() {
         return gender;
     }
 
-    public String getAffiliation() {
-        return affiliation;
-    }
-
-    public void setAffiliation(String affiliation) {
-        this.affiliation = affiliation;
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getSpecies() {
@@ -55,4 +40,13 @@ public class StarWarsCharacter {
     public void setSpecies(String species) {
         this.species = species;
     }
+
+    public String getAffiliation() {
+        return affiliation;
+    }
+
+    public void setAffiliation(String affiliation) {
+        this.affiliation = affiliation;
+    }
 }
+
