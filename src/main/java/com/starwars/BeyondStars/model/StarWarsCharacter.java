@@ -21,32 +21,17 @@ public class StarWarsCharacter {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getGender() {
         return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
     }
 
     public String getSpecies() {
         return species;
     }
 
-    public void setSpecies(String species) {
-        this.species = species;
-    }
-
     public String getAffiliation() {
         return affiliation;
     }
 
-    public void setAffiliation(String affiliation) {
-        this.affiliation = affiliation;
-    }
 }
 
