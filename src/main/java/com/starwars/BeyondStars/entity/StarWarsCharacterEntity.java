@@ -50,4 +50,24 @@ public class StarWarsCharacterEntity {
     public Set<StarWarsFilmEntity> getFilms() {
         return films;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setSpecies(Set<StarWarsSpeciesEntity> species) {
+        this.species = species;
+    }
+
+    public void setFilms(Set<StarWarsFilmEntity> films) {
+        this.films = films;
+    }
 }

@@ -5,11 +5,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.starwars.BeyondStars.entity.StarWarsCharacterEntity;
-import com.starwars.BeyondStars.repository.StarWarsCharacterRepository;
 import com.starwars.BeyondStars.model.StarWarsCharacter;
 import com.starwars.BeyondStars.model.StarWarsPlanets;
 import com.starwars.BeyondStars.model.StarWarsSpecies;
 import com.starwars.BeyondStars.model.StarWarsStarship;
+import com.starwars.BeyondStars.repository.StarWarsCharacterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,7 +85,17 @@ public class SwapiService {
 
             String species = getSpeciesData(speciesUrl);
 
-            return new StarWarsCharacter(name, gender, species, "Unknown Affiliation");
+            StarWarsCharacter character = new StarWarsCharacter(name, gender, species, "Unknown Affiliation");
+
+            // Converter StarWarsCharacter para StarWarsCharacterEntity antes de salvar
+            StarWarsCharacterEntity entity = new StarWarsCharacterEntity();
+            entity.setName(character.getName());
+            entity.setGender(character.getGender());
+            // Defina o campo de espécie conforme necessário em sua entidade
+
+            characterRepository.save(entity);
+
+            return character;
         } else {
             throw new RuntimeException("Failed to get character data from SWAPI. HTTP status code: " + characterResponse.statusCode());
         }
@@ -194,3 +203,4 @@ public class SwapiService {
                 .collect(Collectors.toList());
     }
 }
+
