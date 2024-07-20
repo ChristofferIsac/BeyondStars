@@ -1,15 +1,14 @@
 package com.starwars.BeyondStars.model;
 
 public class StarWarsPlanets {
-    private String name;
-    private int population;
-    private String terrain;
-    private String climate;
+    private final String name;
+    private final long population;
+    private final String terrain;
+    private final String climate;
 
-    public StarWarsPlanets() {
-    }
 
-    public StarWarsPlanets(String name, int population, String terrain, String climate) {
+
+    public StarWarsPlanets(String name, long population, String terrain, String climate) {
         this.name = name;
         this.population = population;
         this.terrain = terrain;
@@ -20,7 +19,7 @@ public class StarWarsPlanets {
         return name;
     }
 
-    public int getPopulation() {
+    public long getPopulation() {
         return population;
     }
 

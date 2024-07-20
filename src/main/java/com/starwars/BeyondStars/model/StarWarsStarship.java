@@ -1,16 +1,13 @@
 package com.starwars.BeyondStars.model;
 
 public class StarWarsStarship {
-private String name;
-private String model;
-private int cost;
-private String starshipClass;
+private final String name;
+private final String model;
+private final long cost;
+private final String starshipClass;
 
-public StarWarsStarship(String name, String model, int cost) {
 
-}
-
-public StarWarsStarship(String name, String model, int cost, String starshipClass) {
+public StarWarsStarship(String name, String model, String starshipClass, long cost) {
     this.name = name;
     this.model = model;
     this.cost = cost;
@@ -25,7 +22,7 @@ public StarWarsStarship(String name, String model, int cost, String starshipClas
         return model;
     }
 
-    public int getCost() {
+    public long getCost() {
         return cost;
     }
 

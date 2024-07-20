@@ -1,8 +1,8 @@
 package com.starwars.BeyondStars.service;
 
+import com.starwars.BeyondStars.entity.StarWarsCharacterEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.starwars.BeyondStars.model.StarWarsCharacter;
-import com.starwars.BeyondStars.repository.characterRepository;
+import com.starwars.BeyondStars.repository.StarWarsCharacterRepository;
 import  org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,21 +10,22 @@ import java.util.List;
 @Service
 public class characterService {
     @Autowired
-    private characterRepository characterRepository;
+    private StarWarsCharacterRepository StarWarsCharacterRepository;
 
-    public List<Character> getAllCharacters() {
-        return characterRepository.findAll();
+    public List<StarWarsCharacterEntity> getAllCharacters() {
+        return StarWarsCharacterRepository.findAll();
     }
 
     public void saveCharacter(Character character) {
-        characterRepository.save(character);
+
     }
 
-    public Character getCharacterById(Long id) {
-        return characterRepository.findById(id).orElse(null);
+    public StarWarsCharacterEntity getCharacterById(Long id) {
+
+        return StarWarsCharacterRepository.findById(id).orElse(null);
     }
 
     public void deleteCharacter(Long id) {
-        characterRepository.deleteById(id);
+        StarWarsCharacterRepository.deleteById(id);
     }
 }
