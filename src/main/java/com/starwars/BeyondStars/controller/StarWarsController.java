@@ -1,7 +1,7 @@
 package com.starwars.BeyondStars.controller;
 
 import com.starwars.BeyondStars.model.StarWarsCharacter;
-import com.starwars.BeyondStars.service.SwapiService;
+import com.starwars.BeyondStars.SwapiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,5 +19,5 @@ public class StarWarsController {
         return swapiService.getCharacterData(id);
     }
 
-    // Adicione endpoints para planetas, espécies, starships conforme necessário
+
 }

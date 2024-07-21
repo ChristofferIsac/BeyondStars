@@ -58,6 +58,12 @@
 			<artifactId>annotations</artifactId>
 			<version>24.0.1</version> <!-- Versão adequada para o annotations -->
 		</dependency>
+		<!-- Dependência do PostgreSQL -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.6.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

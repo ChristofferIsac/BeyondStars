@@ -1,27 +1,24 @@
-package com.starwars.BeyondStars.service;
+package com.starwars.BeyondStars;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.starwars.BeyondStars.entity.StarWarsCharacterEntity;
+import com.starwars.BeyondStars.repository.StarWarsCharacterRepository;
 import com.starwars.BeyondStars.model.StarWarsCharacter;
 import com.starwars.BeyondStars.model.StarWarsPlanets;
 import com.starwars.BeyondStars.model.StarWarsSpecies;
 import com.starwars.BeyondStars.model.StarWarsStarship;
-import com.starwars.BeyondStars.repository.StarWarsCharacterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Scanner;
 
-@Service
 public class SwapiService {
 
     private final HttpClient client;
@@ -85,17 +82,7 @@ public class SwapiService {
 
             String species = getSpeciesData(speciesUrl);
 
-            StarWarsCharacter character = new StarWarsCharacter(name, gender, species, "Unknown Affiliation");
-
-            // Converter StarWarsCharacter para StarWarsCharacterEntity antes de salvar
-            StarWarsCharacterEntity entity = new StarWarsCharacterEntity();
-            entity.setName(character.getName());
-            entity.setGender(character.getGender());
-            // Defina o campo de espécie conforme necessário em sua entidade
-
-            characterRepository.save(entity);
-
-            return character;
+            return new StarWarsCharacter(name, gender, species, "Unknown Affiliation");
         } else {
             throw new RuntimeException("Failed to get character data from SWAPI. HTTP status code: " + characterResponse.statusCode());
         }
@@ -182,8 +169,8 @@ public class SwapiService {
 
             String name = getStringOrEmpty(starshipJsonObject, "name");
             String model = getStringOrEmpty(starshipJsonObject, "model");
-            String starshipClass = getStringOrEmpty(starshipJsonObject, "starship_class");
             long cost = getLongOrZero(starshipJsonObject, "cost_in_credits");
+            String starshipClass = getStringOrEmpty(starshipJsonObject, "starship_class");
 
             return new StarWarsStarship(name, model, starshipClass, cost);
         } else {
@@ -191,16 +178,64 @@ public class SwapiService {
         }
     }
 
-    public List<StarWarsCharacter> getCharactersByFilmAndSpecies(String filmTitle, String speciesName) {
-        List<StarWarsCharacterEntity> characterEntities = characterRepository.findBySpeciesAndFilm(speciesName, filmTitle);
-        return characterEntities.stream()
-                .map(entity -> new StarWarsCharacter(
-                        entity.getName(),
-                        entity.getGender(),
-                        entity.getSpecies().stream().map(species -> species.getName()).collect(Collectors.joining(", ")),
-                        "Unknown Affiliation"
-                ))
-                .collect(Collectors.toList());
+    public static void main(String[] args) {
+        SwapiService service = new SwapiService();
+        Scanner read = new Scanner(System.in);
+        String searchType = "";
+        String searchId = "";
+
+        while (!searchType.equalsIgnoreCase("exit")) {
+            System.out.println("Enter search type (character/planet/species/starship/exit):");
+            searchType = read.nextLine();
+
+            if (searchType.equalsIgnoreCase("exit")) {
+                System.out.println("Exiting...");
+                break;
+            }
+
+            System.out.println("Enter ID to search:");
+            searchId = read.nextLine();
+
+            try {
+                switch (searchType.toLowerCase()) {
+                    case "character":
+                        StarWarsCharacter character = service.getCharacterData(searchId);
+                        System.out.println("Name: " + character.getName());
+                        System.out.println("Gender: " + character.getGender());
+                        System.out.println("Species: " + character.getSpecies());
+                        System.out.println("Affiliation: " + character.getAffiliation());
+                        break;
+                    case "planet":
+                        StarWarsPlanets planet = service.getPlanetData(searchId);
+                        System.out.println("Name: " + planet.getName());
+                        System.out.println("Population: " + planet.getPopulation());
+                        System.out.println("Terrain: " + planet.getTerrain());
+                        System.out.println("Climate: " + planet.getClimate());
+                        break;
+                    case "species":
+                        StarWarsSpecies species = service.getSpeciesDataById(searchId);
+                        System.out.println("Name: " + species.getName());
+                        System.out.println("Classification: " + species.getClassification());
+                        System.out.println("Designation: " + species.getDesignation());
+                        System.out.println("Language: " + species.getLanguage());
+                        break;
+                    case "starship":
+                        StarWarsStarship starship = service.getStarshipData(searchId);
+                        System.out.println("Name: " + starship.getName());
+                        System.out.println("Model: " + starship.getModel());
+                        System.out.println("Starship Class: " + starship.getStarshipClass());
+                        System.out.println("Cost: " + starship.getCost());
+                        break;
+                    default:
+                        System.out.println("Invalid search type. Try again.");
+                }
+            } catch (IOException | InterruptedException e) {
+                System.err.println("Error occurred while calling SWAPI: " + e.getMessage());
+            } catch (RuntimeException e) {
+                System.err.println(e.getMessage());
+            }
+        }
+
+        read.close();
     }
 }
-
