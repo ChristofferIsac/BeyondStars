@@ -5,16 +5,18 @@ public class StarWarsCharacter {
     private String name;
     private String gender;
     private String species;
-    private String affiliation;
+    private String vehicles;
+    private String starships;
 
     public StarWarsCharacter() {
     }
 
-    public StarWarsCharacter(String name, String gender, String species, String affiliation) {
+    public StarWarsCharacter(String name, String gender, String species, String vehicles, String starships) {
         this.name = name;
         this.gender = gender;
         this.species = species;
-        this.affiliation = affiliation;
+        this.vehicles = vehicles;
+        this.starships = starships;
     }
 
     public String getName() {
@@ -30,8 +32,15 @@ public class StarWarsCharacter {
     }
 
     public String getAffiliation() {
-        return affiliation;
+        return vehicles;
     }
 
+    public String getStarships() {
+        return starships;
+    }
+
+    public String getVehicles() {
+        return vehicles;
+    }
 }
 

@@ -1,22 +1,21 @@
-package com.starwars.BeyondStars;
+package com.starwars.BeyondStars.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.starwars.BeyondStars.entity.StarWarsCharacterEntity;
-import com.starwars.BeyondStars.repository.StarWarsCharacterRepository;
 import com.starwars.BeyondStars.model.StarWarsCharacter;
 import com.starwars.BeyondStars.model.StarWarsPlanets;
 import com.starwars.BeyondStars.model.StarWarsSpecies;
 import com.starwars.BeyondStars.model.StarWarsStarship;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class SwapiService {
@@ -24,13 +23,12 @@ public class SwapiService {
     private final HttpClient client;
     private final Gson gson;
 
-    @Autowired
-    private StarWarsCharacterRepository characterRepository;
 
     public SwapiService() {
         this.client = HttpClient.newHttpClient();
         this.gson = new GsonBuilder().create();
     }
+
 
     private String getStringOrEmpty(JsonObject jsonObject, String key) {
         JsonElement element = jsonObject.get(key);
@@ -79,17 +77,26 @@ public class SwapiService {
             String speciesUrl = characterJsonObject.getAsJsonArray("species").size() > 0
                     ? characterJsonObject.getAsJsonArray("species").get(0).getAsString()
                     : "";
+            String vehiclesUrl = characterJsonObject.getAsJsonArray("vehicles").size() > 0
+                    ? characterJsonObject.getAsJsonArray("vehicles").get(0).getAsString()
+                    : "";
+            String starshipsUrl = characterJsonObject.getAsJsonArray("starships").size() > 0
+                    ? characterJsonObject.getAsJsonArray("starships").get(0).getAsString()
+                    : "";
 
+            String vehicles = getVehiclesData(vehiclesUrl);
             String species = getSpeciesData(speciesUrl);
+            String starships = getStarshipsData(starshipsUrl);
 
-            return new StarWarsCharacter(name, gender, species, "Unknown Affiliation");
+
+            return new StarWarsCharacter(name, gender, species, vehicles, starships);
         } else {
             throw new RuntimeException("Failed to get character data from SWAPI. HTTP status code: " + characterResponse.statusCode());
         }
     }
 
     private String getSpeciesData(String speciesUrl) throws IOException, InterruptedException {
-        if (speciesUrl == null || speciesUrl.isEmpty()) return "";
+        if (speciesUrl == null || speciesUrl.isEmpty()) return "N/A";
 
         HttpRequest speciesRequest = HttpRequest.newBuilder()
                 .uri(URI.create(speciesUrl))
@@ -103,6 +110,42 @@ public class SwapiService {
             return getStringOrEmpty(speciesJsonObject, "name");
         } else {
             throw new RuntimeException("Failed to get species data from SWAPI. HTTP status code: " + speciesResponse.statusCode());
+        }
+    }
+
+    private String getVehiclesData(String vehiclesUrl) throws IOException, InterruptedException {
+        if (vehiclesUrl == null || vehiclesUrl.isEmpty()) return "N/A";
+
+        HttpRequest vehiclesRequest = HttpRequest.newBuilder()
+                .uri(URI.create(vehiclesUrl))
+                .GET()
+                .build();
+
+        HttpResponse<String> vehiclesResponse = client.send(vehiclesRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (vehiclesResponse.statusCode() == 200) {
+            JsonObject vehiclesJsonObject = gson.fromJson(vehiclesResponse.body(), JsonObject.class);
+            return getStringOrEmpty(vehiclesJsonObject, "name");
+        } else {
+            throw new RuntimeException("Failed to get vehicles data from SWAPI. HTTP status code: " + vehiclesResponse.statusCode());
+        }
+    }
+
+    private String getStarshipsData(String starshipsUrl) throws IOException, InterruptedException {
+        if (starshipsUrl == null || starshipsUrl.isEmpty()) return "N/A";
+
+        HttpRequest starshipsRequest = HttpRequest.newBuilder()
+                .uri(URI.create(starshipsUrl))
+                .GET()
+                .build();
+
+        HttpResponse<String> starshipsResponse = client.send(starshipsRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (starshipsResponse.statusCode() == 200) {
+            JsonObject starshipsJsonObject = gson.fromJson(starshipsResponse.body(), JsonObject.class);
+            return getStringOrEmpty(starshipsJsonObject, "name");
+        } else {
+            throw new RuntimeException("Failed to get starships data from SWAPI. HTTP status code: " + starshipsResponse.statusCode());
         }
     }
 
@@ -178,13 +221,115 @@ public class SwapiService {
         }
     }
 
+    public StarWarsCharacter searchCharacterByName(String characterName) throws IOException, InterruptedException {
+        String encodedCharacterName = URLEncoder.encode(characterName, StandardCharsets.UTF_8);
+        String searchURL = "https://swapi.dev/api/people/?search=" + encodedCharacterName;
+        HttpRequest searchRequest = HttpRequest.newBuilder()
+                .uri(URI.create(searchURL))
+                .GET()
+                .build();
+
+        HttpResponse<String> searchResponse = client.send(searchRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (searchResponse.statusCode() == 200) {
+            JsonObject searchResult = gson.fromJson(searchResponse.body(), JsonObject.class);
+
+            if (searchResult.getAsJsonArray("results").size() > 0) {
+                JsonObject characterJsonObject = searchResult.getAsJsonArray("results").get(0).getAsJsonObject();
+                String characterId = characterJsonObject.get("url").getAsString().split("/")[5]; // Extrai o ID da URL
+                return getCharacterData(characterId);
+            } else {
+                throw new RuntimeException("No character found with the name: " + characterName);
+            }
+        } else {
+            throw new RuntimeException("Failed to search character by name from SWAPI. HTTP status code: " + searchResponse.statusCode());
+        }
+    }
+
+    public StarWarsPlanets searchPlanetByName(String planetName) throws IOException, InterruptedException {
+        String encodedPlanetName = URLEncoder.encode(planetName, StandardCharsets.UTF_8);
+        String searchURL = "https://swapi.dev/api/planets/?search=" + encodedPlanetName;
+        HttpRequest searchRequest = HttpRequest.newBuilder()
+                .uri(URI.create(searchURL))
+                .GET()
+                .build();
+
+        HttpResponse<String> searchResponse = client.send(searchRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (searchResponse.statusCode() == 200) {
+            JsonObject searchResult = gson.fromJson(searchResponse.body(), JsonObject.class);
+
+            if (searchResult.getAsJsonArray("results").size() > 0) {
+                JsonObject planetJsonObject = searchResult.getAsJsonArray("results").get(0).getAsJsonObject();
+                String planetId = planetJsonObject.get("url").getAsString().split("/")[5]; // Extrai o ID da URL
+                return getPlanetData(planetId);
+            } else {
+                throw new RuntimeException("No planet found with the name: " + planetName);
+            }
+        } else {
+            throw new RuntimeException("Failed to search planet by name from SWAPI. HTTP status code: " + searchResponse.statusCode());
+        }
+    }
+
+    public StarWarsSpecies searchSpeciesByName(String speciesName) throws IOException, InterruptedException {
+        String encodedSpeciesName = URLEncoder.encode(speciesName, StandardCharsets.UTF_8);
+        String searchURL = "https://swapi.dev/api/species/?search=" + encodedSpeciesName;
+        HttpRequest searchRequest = HttpRequest.newBuilder()
+                .uri(URI.create(searchURL))
+                .GET()
+                .build();
+
+        HttpResponse<String> searchResponse = client.send(searchRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (searchResponse.statusCode() == 200) {
+            JsonObject searchResult = gson.fromJson(searchResponse.body(), JsonObject.class);
+
+            if (searchResult.getAsJsonArray("results").size() > 0) {
+                JsonObject speciesJsonObject = searchResult.getAsJsonArray("results").get(0).getAsJsonObject();
+                String speciesId = speciesJsonObject.get("url").getAsString().split("/")[5]; // Extrai o ID da URL
+                return getSpeciesDataById(speciesId);
+            } else {
+                throw new RuntimeException("No species found with the name: " + speciesName);
+            }
+        } else {
+            throw new RuntimeException("Failed to search species by name from SWAPI. HTTP status code: " + searchResponse.statusCode());
+        }
+    }
+
+    public StarWarsStarship searchStarshipByName(String starshipName) throws IOException, InterruptedException {
+        String encodedStarshipName = URLEncoder.encode(starshipName, StandardCharsets.UTF_8);
+        String searchURL = "https://swapi.dev/api/starships/?search=" + encodedStarshipName;
+        HttpRequest searchRequest = HttpRequest.newBuilder()
+                .uri(URI.create(searchURL))
+                .GET()
+                .build();
+
+        HttpResponse<String> searchResponse = client.send(searchRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (searchResponse.statusCode() == 200) {
+            JsonObject searchResult = gson.fromJson(searchResponse.body(), JsonObject.class);
+
+            if (searchResult.getAsJsonArray("results").size() > 0) {
+                JsonObject starshipJsonObject = searchResult.getAsJsonArray("results").get(0).getAsJsonObject();
+                String starshipId = starshipJsonObject.get("url").getAsString().split("/")[5]; // Extrai o ID da URL
+                return getStarshipData(starshipId);
+            } else {
+                throw new RuntimeException("No starship found with the name: " + starshipName);
+            }
+        } else {
+            throw new RuntimeException("Failed to search starship by name from SWAPI. HTTP status code: " + searchResponse.statusCode());
+        }
+    }
+
     public static void main(String[] args) {
         SwapiService service = new SwapiService();
         Scanner read = new Scanner(System.in);
-        String searchType = "";
-        String searchId = "";
+        String searchType, searchInput;
 
-        while (!searchType.equalsIgnoreCase("exit")) {
+        while (true) {
+            // Limpa o console antes de cada busca
+            service.clearConsole();
+
             System.out.println("Enter search type (character/planet/species/starship/exit):");
             searchType = read.nextLine();
 
@@ -193,38 +338,46 @@ public class SwapiService {
                 break;
             }
 
-            System.out.println("Enter ID to search:");
-            searchId = read.nextLine();
+            System.out.println("Enter ID or Name to search:");
+            searchInput = read.nextLine();
 
             try {
                 switch (searchType.toLowerCase()) {
                     case "character":
-                        StarWarsCharacter character = service.getCharacterData(searchId);
-                        System.out.println("Name: " + character.getName());
-                        System.out.println("Gender: " + character.getGender());
-                        System.out.println("Species: " + character.getSpecies());
-                        System.out.println("Affiliation: " + character.getAffiliation());
+                        if (searchInput.matches("\\d+")) {
+                            StarWarsCharacter character = service.getCharacterData(searchInput);
+                            service.displayCharacterData(character);
+                        } else {
+                            StarWarsCharacter character = service.searchCharacterByName(searchInput);
+                            service.displayCharacterData(character);
+                        }
                         break;
                     case "planet":
-                        StarWarsPlanets planet = service.getPlanetData(searchId);
-                        System.out.println("Name: " + planet.getName());
-                        System.out.println("Population: " + planet.getPopulation());
-                        System.out.println("Terrain: " + planet.getTerrain());
-                        System.out.println("Climate: " + planet.getClimate());
+                        if (searchInput.matches("\\d+")) {
+                            StarWarsPlanets planet = service.getPlanetData(searchInput);
+                            service.displayPlanetData(planet);
+                        } else {
+                            StarWarsPlanets planet = service.searchPlanetByName(searchInput);
+                            service.displayPlanetData(planet);
+                        }
                         break;
                     case "species":
-                        StarWarsSpecies species = service.getSpeciesDataById(searchId);
-                        System.out.println("Name: " + species.getName());
-                        System.out.println("Classification: " + species.getClassification());
-                        System.out.println("Designation: " + species.getDesignation());
-                        System.out.println("Language: " + species.getLanguage());
+                        if (searchInput.matches("\\d+")) {
+                            StarWarsSpecies species = service.getSpeciesDataById(searchInput);
+                            service.displaySpeciesData(species);
+                        } else {
+                            StarWarsSpecies species = service.searchSpeciesByName(searchInput);
+                            service.displaySpeciesData(species);
+                        }
                         break;
                     case "starship":
-                        StarWarsStarship starship = service.getStarshipData(searchId);
-                        System.out.println("Name: " + starship.getName());
-                        System.out.println("Model: " + starship.getModel());
-                        System.out.println("Starship Class: " + starship.getStarshipClass());
-                        System.out.println("Cost: " + starship.getCost());
+                        if (searchInput.matches("\\d+")) {
+                            StarWarsStarship starship = service.getStarshipData(searchInput);
+                            service.displayStarshipData(starship);
+                        } else {
+                            StarWarsStarship starship = service.searchStarshipByName(searchInput);
+                            service.displayStarshipData(starship);
+                        }
                         break;
                     default:
                         System.out.println("Invalid search type. Try again.");
@@ -234,8 +387,53 @@ public class SwapiService {
             } catch (RuntimeException e) {
                 System.err.println(e.getMessage());
             }
+
+            System.out.println("Press Enter to continue...");
+            read.nextLine();
         }
 
         read.close();
+    }
+
+    private void clearConsole() {
+        try {
+            if (System.getProperty("os.name").contains("Windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            System.err.println("Error clearing console: " + e.getMessage());
+        }
+    }
+
+    private void displayCharacterData(StarWarsCharacter character) {
+        System.out.println("Name: " + character.getName());
+        System.out.println("Gender: " + character.getGender());
+        System.out.println("Species: " + character.getSpecies());
+        System.out.println("Vehicles: " + character.getVehicles());
+        System.out.println("Starships: " + character.getStarships());
+    }
+
+    private void displayPlanetData(StarWarsPlanets planet) {
+        System.out.println("Name: " + planet.getName());
+        System.out.println("Population: " + planet.getPopulation());
+        System.out.println("Terrain: " + planet.getTerrain());
+        System.out.println("Climate: " + planet.getClimate());
+    }
+
+    private void displaySpeciesData(StarWarsSpecies species) {
+        System.out.println("Name: " + species.getName());
+        System.out.println("Classification: " + species.getClassification());
+        System.out.println("Designation: " + species.getDesignation());
+        System.out.println("Language: " + species.getLanguage());
+    }
+
+    private void displayStarshipData(StarWarsStarship starship) {
+        System.out.println("Name: " + starship.getName());
+        System.out.println("Model: " + starship.getModel());
+        System.out.println("Starship Class: " + starship.getStarshipClass());
+        System.out.println("Cost: " + starship.getCost());
     }
 }

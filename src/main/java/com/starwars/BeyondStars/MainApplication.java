@@ -4,13 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.starwars.BeyondStars.entity.StarWarsCharacterEntity;
-import com.starwars.BeyondStars.repository.StarWarsCharacterRepository;
 import com.starwars.BeyondStars.model.StarWarsCharacter;
 import com.starwars.BeyondStars.model.StarWarsPlanets;
 import com.starwars.BeyondStars.model.StarWarsSpecies;
 import com.starwars.BeyondStars.model.StarWarsStarship;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,8 +23,6 @@ public class MainApplication {
     private final HttpClient client;
     private final Gson gson;
 
-    @Autowired
-    private StarWarsCharacterRepository characterRepository;
 
     public MainApplication() {
         this.client = HttpClient.newHttpClient();
@@ -81,17 +76,26 @@ public class MainApplication {
             String speciesUrl = characterJsonObject.getAsJsonArray("species").size() > 0
                     ? characterJsonObject.getAsJsonArray("species").get(0).getAsString()
                     : "";
+            String vehiclesUrl = characterJsonObject.getAsJsonArray("vehicles").size() > 0
+                    ? characterJsonObject.getAsJsonArray("vehicles").get(0).getAsString()
+                    : "";
+            String starshipsUrl = characterJsonObject.getAsJsonArray("starships").size() > 0
+                    ? characterJsonObject.getAsJsonArray("starships").get(0).getAsString()
+                    : "";
 
+            String vehicles = getVehiclesData(vehiclesUrl);
             String species = getSpeciesData(speciesUrl);
+            String starships = getStarshipsData(starshipsUrl);
 
-            return new StarWarsCharacter(name, gender, species, "Unknown Affiliation");
+
+            return new StarWarsCharacter(name, gender, species, vehicles, starships);
         } else {
             throw new RuntimeException("Failed to get character data from SWAPI. HTTP status code: " + characterResponse.statusCode());
         }
     }
 
     private String getSpeciesData(String speciesUrl) throws IOException, InterruptedException {
-        if (speciesUrl == null || speciesUrl.isEmpty()) return "";
+        if (speciesUrl == null || speciesUrl.isEmpty()) return "N/A";
 
         HttpRequest speciesRequest = HttpRequest.newBuilder()
                 .uri(URI.create(speciesUrl))
@@ -105,6 +109,42 @@ public class MainApplication {
             return getStringOrEmpty(speciesJsonObject, "name");
         } else {
             throw new RuntimeException("Failed to get species data from SWAPI. HTTP status code: " + speciesResponse.statusCode());
+        }
+    }
+
+    private String getVehiclesData(String vehiclesUrl) throws IOException, InterruptedException {
+        if (vehiclesUrl == null || vehiclesUrl.isEmpty()) return "N/A";
+
+        HttpRequest vehiclesRequest = HttpRequest.newBuilder()
+                .uri(URI.create(vehiclesUrl))
+                .GET()
+                .build();
+
+        HttpResponse<String> vehiclesResponse = client.send(vehiclesRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (vehiclesResponse.statusCode() == 200) {
+            JsonObject vehiclesJsonObject = gson.fromJson(vehiclesResponse.body(), JsonObject.class);
+            return getStringOrEmpty(vehiclesJsonObject, "name");
+        } else {
+            throw new RuntimeException("Failed to get vehicles data from SWAPI. HTTP status code: " + vehiclesResponse.statusCode());
+          }
+    }
+
+    private String getStarshipsData(String starshipsUrl) throws IOException, InterruptedException {
+        if (starshipsUrl == null || starshipsUrl.isEmpty()) return "N/A";
+
+        HttpRequest starshipsRequest = HttpRequest.newBuilder()
+                .uri(URI.create(starshipsUrl))
+                .GET()
+                .build();
+
+        HttpResponse<String> starshipsResponse = client.send(starshipsRequest, HttpResponse.BodyHandlers.ofString());
+
+        if (starshipsResponse.statusCode() == 200) {
+            JsonObject starshipsJsonObject = gson.fromJson(starshipsResponse.body(), JsonObject.class);
+            return getStringOrEmpty(starshipsJsonObject, "name");
+        } else {
+            throw new RuntimeException("Failed to get starships data from SWAPI. HTTP status code: " + starshipsResponse.statusCode());
         }
     }
 
@@ -371,7 +411,8 @@ public class MainApplication {
         System.out.println("Name: " + character.getName());
         System.out.println("Gender: " + character.getGender());
         System.out.println("Species: " + character.getSpecies());
-        System.out.println("Affiliation: " + character.getAffiliation());
+        System.out.println("Vehicles: " + character.getVehicles());
+        System.out.println("Starships: " + character.getStarships());
     }
 
     private void displayPlanetData(StarWarsPlanets planet) {

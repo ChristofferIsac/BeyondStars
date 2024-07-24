@@ -1,7 +1,7 @@
 package com.starwars.BeyondStars.controller;
 
 import com.starwars.BeyondStars.model.StarWarsCharacter;
-import com.starwars.BeyondStars.SwapiService;
+import com.starwars.BeyondStars.service.SwapiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
