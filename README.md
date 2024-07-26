@@ -38,8 +38,14 @@ Este projeto foi desenvolvido como paixão ao universo Geek Star Wars, possibili
 
 |  Tecnologias |    Utilização     |
 | :----: | -------------------------------------------------------------------------------------- |
-|  Java  | Principal linguguagem utilizada no projeto, responsável pela estruturação |       
-|  Gson  | Dependência utilizada para a requisição dos valores na APi |
+|  Java  | Principal linguagem utilizada no projeto, responsável pela estruturação |       
+|  Maven  | Ferramenta de gerenciamento de dependências e automação de build |
+|  Gson  | Dependência utilizada para a serialização e desserialização de objetos JSON |
+|  SWAPI  | API utilizada para obter dados sobre personagens, planetas, espécies e naves de Star Wars |
+|  Java HttpClient | Utilizado para fazer requisições HTTP à API SWAPI |
+|  Spring Boot  | Framework utilizado para criar a aplicação Java e injeção de dependências (Autowired) |
+|  Spring Data JPA  | Utilizado para manipulação de dados e persistência dos personagens |
+
 
 ## Como testar?
 para testar este projeto em sua máquinas siga os seguintes passos:
