@@ -27,7 +27,7 @@ Este projeto foi desenvolvido como paixão ao universo Geek Star Wars, possibili
 
 ## Estrutura do Projeto
 
-- **MainApplication:** A classe principal que contém a lógica do aplicativo.
+- **MainApplication:** A classe principal que contém a lógica da aplicação.
 - **StarWarsCharacter:** Modelo para personagens de Star Wars.
 - **StarWarsPlanets:** Modelo para planetas de Star Wars.
 - **StarWarsSpecies:** Modelo para espécies de Star Wars.
