@@ -90,7 +90,7 @@ public class MainApplication {
 
             return new StarWarsCharacter(name, gender, species, vehicles, starships);
         } else {
-            throw new RuntimeException("Failed to get character data from SWAPI. HTTP status code: " + characterResponse.statusCode());
+            throw new RuntimeException("Failed to get character data from SWAPI. Status Code " + characterResponse.statusCode());
         }
     }
 
