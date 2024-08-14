@@ -1,4 +1,4 @@
-package com.starwars.BeyondStars.ui;
+package com.starwars.BeyondStars.UserInterface;
 
 import com.starwars.BeyondStars.service.SwapiService;
 import javafx.application.Application;
@@ -11,9 +11,11 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 
+import static javafx.application.Application.launch;
+
 public class StarWarsUI extends SwapiService {
 
-    @Override
+
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Star Wars Data Viewer");
 
