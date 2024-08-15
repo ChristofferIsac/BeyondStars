@@ -4,18 +4,17 @@ import com.starwars.BeyondStars.service.SwapiService;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.awt.*;
+public class StarWarsUI extends Application {
 
-import static javafx.application.Application.launch;
-
-public class StarWarsUI extends SwapiService {
-
-
+    @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Star Wars Data Viewer");
 
@@ -30,6 +29,7 @@ public class StarWarsUI extends SwapiService {
         searchButton.setOnAction(e -> {
             String searchText = searchField.getText();
             // Aqui você chama seu serviço para buscar dados e atualizar a resultArea
+            // Exemplo fictício de atualização:
             resultArea.setText("Results for: " + searchText);
         });
 
@@ -45,4 +45,3 @@ public class StarWarsUI extends SwapiService {
         launch(args);
     }
 }
-
