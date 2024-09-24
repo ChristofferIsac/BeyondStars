@@ -21,7 +21,7 @@
   </p>
 
 ## Descrição:
-> ℹ️ **NOTE:** Um dos principais projetos em meu portfólio
+> ℹ️ **NOTE:** Atualizçôes em 08/10
 
 Este projeto foi desenvolvido como paixão ao universo Geek Star Wars, possibilitando a busca pelos personagens, planetas, espécies e naves deste universo.
 
