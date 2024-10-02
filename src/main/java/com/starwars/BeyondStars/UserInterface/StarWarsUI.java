@@ -28,8 +28,6 @@ public class StarWarsUI extends Application {
 
         searchButton.setOnAction(e -> {
             String searchText = searchField.getText();
-            // Aqui você chama seu serviço para buscar dados e atualizar a resultArea
-            // Exemplo fictício de atualização:
             resultArea.setText("Results for: " + searchText);
         });
 
